@@ -17,6 +17,16 @@ latest release (pin one with `SLKX_VERSION=v0.1.0-beta`). The Linux binary needs
 `libcurl4` and `libssl3` (Ubuntu 22.04+, Debian 12+). Anything else: build from
 source.
 
+### AI agents
+
+`install.sh` also installs an agent skill into `~/.claude/skills/slkx/` when
+Claude Code is present, so Claude knows slkx exists and reaches for it on Slack
+tasks. The skill points the agent at `slkx --help` and adds what the help does
+not cover: ask before posting, parse with `--json`, what each exit code means.
+For other agents, copy [`skills/slkx/SKILL.md`](skills/slkx/SKILL.md) wherever
+they read skills from, or add a line to their instructions file such as "for
+Slack, use `slkx`; run `slkx --help` first".
+
 ## Build
 
 ```sh
