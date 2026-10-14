@@ -38,6 +38,9 @@ commands
 
   click --thread <permalink|ts>  press a Block Kit button (needs --yes to fire)
   watch                          stream live RTM events as JSONL on stdout
+  keepalive [--channel C] [--every 3600]
+                                 read C (default general) every N seconds so
+                                 Slack does not expire an idle session
   channels [--refresh]           list cached channel names and ids
   users [--refresh]              list cached user handles and ids
   notifications                  conversations with unread messages
@@ -104,6 +107,8 @@ int main(int argc, char** argv) {
       rc = slk::commands::click(args);
     } else if (cmd == "watch") {
       rc = slk::commands::watch(args);
+    } else if (cmd == "keepalive") {
+      rc = slk::commands::keepalive(args);
     } else if (cmd == "channels") {
       rc = slk::commands::channels(args);
     } else if (cmd == "users") {

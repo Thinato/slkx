@@ -3,6 +3,20 @@
 Slack from the shell. C++20, libcurl, nlohmann/json. One binary, no runtime deps
 beyond libcurl.
 
+## Install
+
+Prebuilt binaries for Linux x86_64 and macOS arm64:
+
+```sh
+curl --proto '=https' --tlsv1.2 -sSf \
+  https://raw.githubusercontent.com/Thinato/slkx/main/install.sh | sh
+```
+
+It installs to `~/.local/bin` (override with `SLKX_INSTALL_DIR`) and fetches the
+latest release (pin one with `SLKX_VERSION=v0.1.0-beta`). The Linux binary needs
+`libcurl4` and `libssl3` (Ubuntu 22.04+, Debian 12+). Anything else: build from
+source.
+
 ## Build
 
 ```sh
@@ -47,6 +61,14 @@ the environment:
 slkx --workspace clientco auth set --token xoxc-... --cookie xoxd-...
 ```
 
+Optional: Slack expires a session that sits unused, after which you re-copy
+both values. If you use slkx only now and then, leave a keepalive running in
+the background (details in [Keeping the session alive](#keeping-the-session-alive)):
+
+```sh
+nohup slkx keepalive >/dev/null 2>&1 &   # reads #general hourly; --channel to change
+```
+
 ## Usage
 
 ```sh
@@ -86,6 +108,7 @@ slkx click --thread 'https://acme.slack.com/archives/C0123456789/p17882763496966
 slkx click --thread '...' --action dev_available_yes --yes
 
 slkx watch                            # live events as JSONL on stdout
+slkx keepalive --channel '#general'   # keep an idle session from expiring
 slkx notifications
 slkx --workspace clientco send --channel '#status' --message 'done'
 ```
@@ -224,6 +247,23 @@ The socket handshake must carry the `d` cookie. Without it Slack completes the
 upgrade and *then* sends `{"type":"error","error":{"msg":"invalid_auth"}}` and
 closes -- which looks exactly like RTM being unavailable to user tokens. It is
 not; see `src/rtm.cpp`.
+
+## Keeping the session alive
+
+Slack expires a session that goes unused for long enough, and then every call
+fails with `invalid_auth`. `keepalive` prevents that by reading the latest
+message of one channel (`general` unless `--channel` says otherwise) every
+`--every` seconds (default 3600, minimum 60). It logs one line per tick to
+stderr.
+
+```sh
+nohup slkx keepalive --channel '#random' >/dev/null 2>&1 &
+```
+
+A network error or a rate limit is logged and tried again on the next tick. If
+Slack rejects the session, `keepalive` exits with code 3, because there is
+nothing left to keep alive. Stop it with `SIGTERM`. For it to survive reboots,
+run it from a launchd agent or a systemd user unit.
 
 ## Known gaps
 

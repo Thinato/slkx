@@ -14,6 +14,7 @@ int channels(const Args& args);
 int users(const Args& args);
 int click(const Args& args);
 int watch(const Args& args);
+int keepalive(const Args& args);
 int notifications(const Args& args);
 
 }  // namespace slk::commands
