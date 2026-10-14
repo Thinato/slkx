@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <optional>
 #include <sstream>
+#include <thread>
 #include <vector>
 
 #include "config.hpp"
@@ -738,6 +739,36 @@ int watch(const Args& args) {
     std::cout << frame << "\n" << std::flush;
   }, g_stop);
 
+  return 0;
+}
+
+// Slack expires a session that goes unused. Reading one message every --every
+// seconds keeps it warm. Transient failures (network, rate limit) are logged
+// and retried next tick; a rejected session ends the loop, since there is
+// nothing left to keep alive.
+int keepalive(const Args& args) {
+  Session s(args);
+  const std::string id = s.resolver.to_id(args.value_or("channel", "general"));
+  const long every = std::max(args.number_or("every", 3600L), 60L);
+
+  std::signal(SIGINT, [](int) { g_stop = true; });
+  std::signal(SIGTERM, [](int) { g_stop = true; });
+
+  while (!g_stop) {
+    try {
+      s.client.call("conversations.history", {{"channel", id}, {"limit", "1"}});
+      std::cerr << "keepalive: ok\n";
+    } catch (const slack::ApiError& e) {
+      if (e.code == "invalid_auth" || e.code == "not_authed") throw;
+      std::cerr << "keepalive: " << e.what() << "\n";
+    } catch (const http::TransportError& e) {
+      std::cerr << "keepalive: " << e.what() << "\n";
+    }
+    // Sleep in 1s steps so SIGTERM stops it promptly.
+    for (long i = 0; i < every && !g_stop; ++i) {
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+  }
   return 0;
 }
 }  // namespace slk::commands
