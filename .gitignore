@@ -1,0 +1,10 @@
+build/
+.omc/
+.DS_Store
+.cache/
+compile_commands.json
+
+# raw captures from the Slack web client carry live tokens and cookies
+*.curl
+*.har
+*.websocket.messages
