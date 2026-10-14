@@ -69,7 +69,7 @@ jobs:
         run: for t in build/slkx_*_test; do "$t"; done
 
       - name: Package
-        run: tar -czf slkx-${{ matrix.name }}.tar.gz -C build slkx -C .. LICENSE
+        run: tar -czf slkx-${{ matrix.name }}.tar.gz -C build slkx -C .. LICENSE skills/slkx/SKILL.md
 
       - uses: actions/upload-artifact@v4
         with:
