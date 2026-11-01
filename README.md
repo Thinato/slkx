@@ -304,6 +304,11 @@ run it from a launchd agent or a systemd user unit.
   web client's own socket, which speaks identical frames but requires
   constructing the URL rather than asking for it.
 
+## Support
+
+slkx is free and stays free. If it saves you time, you can
+[sponsor its development](https://github.com/sponsors/Thinato).
+
 ## License
 
 MIT, see [LICENSE](LICENSE).
