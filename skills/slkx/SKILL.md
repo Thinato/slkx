@@ -9,6 +9,19 @@ description: Read and act on Slack from the shell with the slkx CLI -- read chan
 `slkx --help` first: it is the full reference for commands, flags and examples.
 This file only adds what the help does not say.
 
+## If slkx is not installed
+
+If `slkx` is not on PATH, ask the user before installing it, then run:
+
+```sh
+curl --proto '=https' --tlsv1.2 -sSf \
+  https://raw.githubusercontent.com/Thinato/slkx/main/install.sh | sh
+```
+
+It also needs the user's Slack session (`SLACK_CTOKEN` and `SLACK_DTOKEN`),
+which only they can copy from their browser: point them to
+https://github.com/Thinato/slkx#setup.
+
 ## Ask before anything other people see
 
 `send`, `edit`, `react` and `click --yes` act as the user, in front of their
